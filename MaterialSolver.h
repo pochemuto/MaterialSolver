@@ -7,21 +7,23 @@
 
 
 #include "Eigen/Dense"
+#include "Material.h"
+#include <vector>
 
 using namespace Eigen;
 
 class MaterialSolver {
 private:
-    const int         N; // количество слоев
-    const double*     y;      // толщины слоев
-    const double*     k;      // коэффициенты теплопроводности
-    const double      t;      // температура над материалом
-    const double      tN;     // температура под материалом
+    double t;
+    double tN;
+    std::vector<Layer> layers;
 
 public:
-    MaterialSolver(int const layers, double const *y, double const *k, double const t, double const tN) : N(layers),
-                                                                                                          y(y), k(k), t(t),
-                                                                                                          tN(tN) { }
+    MaterialSolver(std::vector<Layer> layers, double t, double tN) : t(t), tN(tN) {
+        this->layers = layers;
+    }
+
+    inline int getN() { return (int) layers.size(); }
 
     void start();
 
