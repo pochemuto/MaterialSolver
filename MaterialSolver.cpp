@@ -65,13 +65,12 @@ double MaterialSolver::getT(double y) {
         n++;
     }
     cout << "n = " << n << endl;
-    return segmT(y, n);
+    return getT(y, n);
 }
 
-double MaterialSolver::segmT(double y, int n) {
+double MaterialSolver::getT(double y, int n) {
     if (n < 0 || n >= getN()) {
         throw out_of_range("invalid layer number");
     }
-    double c1 = Tcoeffs(n*2), c2 = Tcoeffs(n*2 + 1);
-    return c1 + c2 * y;
+    return C1(n) + C2(n) * y;
 }

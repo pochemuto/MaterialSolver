@@ -31,6 +31,29 @@ public:
 
     inline int getN() { return (int) layers.size(); }
 
+    inline double getH() { return H; }
+
+    inline double C1(int i) {
+        return Tcoeffs(2 * i);
+    }
+
+    inline double C2(int i) {
+        return Tcoeffs(2 * i + 1);
+    }
+
+    inline double V(int i) {
+        return 3 * layers[i].a * C2(i) * layers[i].K / 2 / (layers[i].l + 2 * layers[i].mu;
+    }
+
+    inline double M(int i) {
+        return 2 * layers[i].mu + layers[i].l;
+    }
+
+    inline double P(int i, double y) {
+        return 2 * (2 * layers[i].mu + layers[i].l) * V(i) * y - 3 * layers[i].K * layers[i].a * getT(y, i);
+    }
+
+
     void start();
 
     double getT(double y);
@@ -39,7 +62,7 @@ public:
 
     MatrixXd createMatrixT();
 
-    double segmT(double y, int n);
+    double getT(double y, int n);
 };
 
 

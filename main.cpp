@@ -19,4 +19,13 @@ int main() {
 
     MaterialSolver solver(layers, 1200, 1000);
     solver.start();
+
+    double y;
+    int n = 0, steps = 10;
+    while (y <= solver.getH()) {
+        cout << y << endl;
+        cout << solver.getT(y) << endl;
+        n++;
+        y = solver.getH() / steps * n;
+    }
 }
