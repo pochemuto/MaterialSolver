@@ -3,20 +3,20 @@
 //
 
 #include <iostream>
+#include <stdexcept>
 #include "MaterialSolver.h"
 
 
 using namespace std;
 
 void MaterialSolver::start() {
-    VectorXd t_coeffs = solveT();
-    cout << t_coeffs << endl;
+    Tcoeffs = solveT();
 }
 
 VectorXd MaterialSolver::solveT() {
     int N = getN();
     MatrixXd matT = createMatrixT();
-    VectorXd left(2*N);
+    VectorXd left = VectorXd::Zero(2*N);
     left(0) = t;
     left(2*N - 1) = tN;
     return matT.colPivHouseholderQr().solve(left);
@@ -24,7 +24,7 @@ VectorXd MaterialSolver::solveT() {
 
 MatrixXd MaterialSolver::createMatrixT() {
     int N = getN();
-    MatrixXd mat(N * 2, N * 2);
+    MatrixXd mat = MatrixXd::Zero(N * 2, N * 2);
     mat(0, 0) = 1;
     // верхняя половина (элементы y -1 y), начиная со второй строчки
     double y = 0;
@@ -50,3 +50,28 @@ MatrixXd MaterialSolver::createMatrixT() {
     return mat;
 }
 
+double MaterialSolver::getT(double y) {
+    if (y < 0 || y > H) {
+        throw out_of_range("y must be in range [0,H]");
+    }
+    int n = 0;
+    double lower = 0, upper = 0;
+    for (auto l : layers) {
+        upper += l.y;
+        if (y >= lower && y <= upper) {
+            break;
+        }
+        lower = upper;
+        n++;
+    }
+    cout << "n = " << n << endl;
+    return segmT(y, n);
+}
+
+double MaterialSolver::segmT(double y, int n) {
+    if (n < 0 || n >= getN()) {
+        throw out_of_range("invalid layer number");
+    }
+    double c1 = Tcoeffs(n*2), c2 = Tcoeffs(n*2 + 1);
+    return c1 + c2 * y;
+}
