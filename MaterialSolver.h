@@ -62,6 +62,8 @@ public:
 
     MatrixXd createMatrixT();
 
+    MatrixXd createMatrixV();
+
     double getT(double y, int n);
 };
 

@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include <stdexcept>
+#include <assert.h>
 #include "MaterialSolver.h"
 
 
@@ -16,9 +16,9 @@ void MaterialSolver::start() {
 VectorXd MaterialSolver::solveT() {
     int N = getN();
     MatrixXd matT = createMatrixT();
-    VectorXd left = VectorXd::Zero(2*N);
+    VectorXd left = VectorXd::Zero(2 * N);
     left(0) = t;
-    left(2*N - 1) = tN;
+    left(2 * N - 1) = tN;
     return matT.colPivHouseholderQr().solve(left);
 }
 
@@ -73,4 +73,46 @@ double MaterialSolver::getT(double y, int n) {
         throw out_of_range("invalid layer number");
     }
     return C1(n) + C2(n) * y;
+}
+
+MatrixXd MaterialSolver::createMatrixV() {
+    int N = getN();
+    int e_column = 2 * N;
+    MatrixXd mat = MatrixXd::Zero(N * 2 + 1, N * 2 + 1);
+    double M_left = M(0), M_right = M_left;
+    // строчки вида (0 M0 0 -M1)
+    mat(0, 1) = M_right;
+    mat(0, N - 1) = 2 * layers[0].l;
+    for (int i = 1; i < N; ++i) {
+        M_right = -M(i);
+        mat(i, 2 * i) = M_left;
+        mat(i, 2 * i + 2) = M_right;
+        mat(i, e_column) = 2 * (layers[i - 1].l - layers[i].l);
+        M_left = -M_right;
+    }
+
+    // строчки вида (1 y0 -1 -y1)
+    int row = N;
+    double y = 0;
+    for (int i = 0; i < N - 1; ++i) {
+        y += layers[i].y;
+        mat(row, 2 * i) = 1;
+        mat(row, 2 * i + 1) = y;
+        mat(row, 2 * i + 2) = -1;
+        mat(row, 2 * i + 3) = -y;
+        row++;
+    }
+    mat(row, 2 * (N - 1)) = 1;
+    mat(row, 2 * (N - 1) + 1) = getH();
+    row++;
+
+    assert(row == 2 * N);
+    double e_coeff = 0;
+    // последняя строчка
+    for (int i = 0; i < N; ++i) {
+        mat(row, 2 * i) = layers[i].l * layers[i].y;
+        e_coeff += (layers[i].l + layers[i].mu) * layers[i].y;
+    }
+    mat(row, e_column) = 2 * e_coeff;
+    return mat;
 }
