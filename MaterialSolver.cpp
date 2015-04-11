@@ -11,15 +11,22 @@ using namespace std;
 
 void MaterialSolver::start() {
     Tcoeffs = solveT();
+    Vcoeffs = solveV();
 }
 
 VectorXd MaterialSolver::solveT() {
     int N = getN();
     MatrixXd matT = createMatrixT();
-    VectorXd left = VectorXd::Zero(2 * N);
-    left(0) = t;
-    left(2 * N - 1) = tN;
-    return matT.colPivHouseholderQr().solve(left);
+    VectorXd right = VectorXd::Zero(2 * N);
+    right(0) = t;
+    right(2 * N - 1) = tN;
+    return matT.colPivHouseholderQr().solve(right);
+}
+
+VectorXd MaterialSolver::solveV() {
+    MatrixXd matV = createMatrixV();
+    VectorXd right = createRightV();
+    return matV.colPivHouseholderQr().solve(right);
 }
 
 MatrixXd MaterialSolver::createMatrixT() {
@@ -116,3 +123,30 @@ MatrixXd MaterialSolver::createMatrixV() {
     mat(row, e_column) = 2 * e_coeff;
     return mat;
 }
+
+VectorXd MaterialSolver::createRightV() {
+    int N = getN();
+    VectorXd vec(2*N + 1);
+    double H = getH();
+    vec(0) = -P(0, 0);
+
+    double y = 0;
+    double v_right = V(0), v_left;
+    for (int i = 0; i < N - 1; ++i) {
+        y += layers[i].y;
+        vec(i + 1) = P(i + 1, y) - P(i, y);
+
+        v_left = V(i + 1);
+        vec(N + i) = (v_left - v_right) * y * y;
+    }
+
+    vec(2 * N - 2) = -V(N - 1) * H * H;
+
+    double t = 0;
+    for (int i = 0; i < N; ++i) {
+        t += T(i);
+    }
+    vec(2 * N - 1) = t;
+    return vec;
+}
+

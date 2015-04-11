@@ -19,6 +19,7 @@ private:
     double H;
     std::vector<Layer> layers;
     VectorXd Tcoeffs;
+    VectorXd Vcoeffs;
 
 public:
     MaterialSolver(std::vector<Layer> layers, double t, double tN) : t(t), tN(tN) {
@@ -42,7 +43,7 @@ public:
     }
 
     inline double V(int i) {
-        return 3 * layers[i].a * C2(i) * layers[i].K / 2 / (layers[i].l + 2 * layers[i].mu;
+        return 3 * layers[i].a * C2(i) * layers[i].K / 2 / (layers[i].l + 2 * layers[i].mu);
     }
 
     inline double M(int i) {
@@ -51,6 +52,20 @@ public:
 
     inline double P(int i, double y) {
         return 2 * (2 * layers[i].mu + layers[i].l) * V(i) * y - 3 * layers[i].K * layers[i].a * getT(y, i);
+    }
+
+    inline double T(int i) {
+        // (y_i^2 - y_{i-1}^2) = (y_i - y_{i-1})(y_i + y_{i-1})
+        //                       |-------------||-------------|
+        //                       толщина слоя i      h
+        int N = getN();
+        double h = 0;
+        for (int j = 0; j < i; ++j) {
+            h += layers[j].y;
+        }
+        h = h * 2 + layers[i].y;
+        return 3*layers[i].K*layers[i].a*layers[i].y
+               + (1.5 * layers[i].K * layers[i].a * C2(i) - layers[i].l * V(i)) * h;
     }
 
 
@@ -64,7 +79,11 @@ public:
 
     MatrixXd createMatrixV();
 
+    VectorXd createRightV();
+
     double getT(double y, int n);
+
+    VectorXd solveV();
 };
 
 
