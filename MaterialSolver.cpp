@@ -57,7 +57,6 @@ MatrixXd MaterialSolver::createMatrixT() {
     }
     mat(2 * N - 1, 2 * N - 2) = 1;
     mat(2 * N - 1, 2 * N - 1) = H;
-    cout << mat << endl;
     return mat;
 }
 
@@ -88,16 +87,16 @@ double MaterialSolver::getT(double y, int n) {
 
 MatrixXd MaterialSolver::createMatrixV() {
     unsigned int N = getN();
-    int e_column = 2 * N;
+    int e_column = 2 * N - 1;
     MatrixXd mat = MatrixXd::Zero(N * 2 + 1, N * 2 + 1);
     double M_left = M(0), M_right = M_left;
     // строчки вида (0 M0 0 -M1)
     mat(0, 1) = M_right;
-    mat(0, N - 1) = 2 * layers[0].l;
+    mat(0, e_column) = 2 * layers[0].l;
     for (int i = 1; i < N; ++i) {
         M_right = -M(i);
-        mat(i, 2 * i) = M_left;
-        mat(i, 2 * i + 2) = M_right;
+        mat(i, 2 * i - 1) = M_left;
+        mat(i, 2 * i + 1) = M_right;
         mat(i, e_column) = 2 * (layers[i - 1].l - layers[i].l);
         M_left = -M_right;
     }
@@ -125,6 +124,8 @@ MatrixXd MaterialSolver::createMatrixV() {
         e_coeff += (layers[i].l + layers[i].mu) * layers[i].y;
     }
     mat(row, e_column) = 2 * e_coeff;
+
+    cout << mat << endl;
     return mat;
 }
 
