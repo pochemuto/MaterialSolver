@@ -70,6 +70,14 @@ long Database::storeConfiguration(std::vector<Layer> layers, double t, double tN
     return cid;
 }
 
-void Database::storeFunctionT(vector<Polynomial> functions) {
-
+void Database::storeFunctionT(int cid, vector<Polynomial> functions) {
+    int lnum = 0;
+    for (auto p : functions) {
+        sqlite3pp::command st(db, "INSERT INTO t_func (cid, lnum, c1, c2) VALUES (:cid, :lnum, :c1, :c2)");
+        st.bind(":cid", cid);
+        st.bind(":lnum", lnum++);
+        st.bind(":c1", p.C1);
+        st.bind(":c2", p.C2);
+        st.execute();
+    }
 }

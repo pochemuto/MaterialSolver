@@ -32,8 +32,8 @@ int main() {
     }
 
     Database db("data.db");
-    db.storeConfiguration(layers, 1200, 1000);
-    db.storeFunctionT(solver.functionT());
+    int cid = db.storeConfiguration(layers, 1200, 1000);
+    db.storeFunctionT(cid, solver.functionT());
 
     return 0;
 }
