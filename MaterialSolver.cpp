@@ -46,16 +46,18 @@ MatrixXd MaterialSolver::createMatrixT() {
         mat(i, column + 3) = -y;
         column += 2;
     }
-    double H = y + layers[N - 1].y; // здесь накопилась вся толщина слоя
+    double H = getH(); // здесь накопилась вся толщина слоя
 
     // нижняя половина (элементы k0 0 -k1), до предпоследней строчки
     column = 1;
     for (int i = 0; i < N - 1; ++i) {
         mat(N + i, column) = layers[i].k;
         mat(N + i, column + 2) = -layers[i + 1].k;
+        column += 2;
     }
     mat(2 * N - 1, 2 * N - 2) = 1;
     mat(2 * N - 1, 2 * N - 1) = H;
+    cout << mat << endl;
     return mat;
 }
 

@@ -81,3 +81,16 @@ void Database::storeFunctionT(int cid, vector<Polynomial> functions) {
         st.execute();
     }
 }
+
+void Database::storeFunctionV(int cid, std::vector<Polynomial> functions) {
+    int lnum = 0;
+    for (auto p : functions) {
+        sqlite3pp::command st(db, "INSERT INTO v_func (cid, lnum, c1, c2, c3) VALUES (:cid, :lnum, :c1, :c2, :c3)");
+        st.bind(":cid", cid);
+        st.bind(":lnum", lnum++);
+        st.bind(":c1", p.C1);
+        st.bind(":c2", p.C2);
+        st.bind(":c3", p.C3);
+        st.execute();
+    }
+}

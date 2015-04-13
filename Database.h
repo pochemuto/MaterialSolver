@@ -23,6 +23,8 @@ public:
     long storeConfiguration(std::vector<Layer> layers, double t, double tN);
 
     void storeFunctionT(int cid, std::vector<Polynomial> functions);
+
+    void storeFunctionV(int cid, std::vector<Polynomial> functions);
 };
 
 
