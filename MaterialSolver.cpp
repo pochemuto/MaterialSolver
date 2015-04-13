@@ -17,7 +17,7 @@ void MaterialSolver::start() {
 }
 
 VectorXd MaterialSolver::solveT() {
-    int N = getN();
+    unsigned int N = getN();
     MatrixXd matT = createMatrixT();
     VectorXd right = VectorXd::Zero(2 * N);
     right(0) = t;
@@ -32,7 +32,7 @@ VectorXd MaterialSolver::solveV() {
 }
 
 MatrixXd MaterialSolver::createMatrixT() {
-    int N = getN();
+    unsigned int N = getN();
     MatrixXd mat = MatrixXd::Zero(N * 2, N * 2);
     mat(0, 0) = 1;
     // верхняя половина (элементы y -1 y), начиная со второй строчки
@@ -85,7 +85,7 @@ double MaterialSolver::getT(double y, int n) {
 }
 
 MatrixXd MaterialSolver::createMatrixV() {
-    int N = getN();
+    unsigned int N = getN();
     int e_column = 2 * N;
     MatrixXd mat = MatrixXd::Zero(N * 2 + 1, N * 2 + 1);
     double M_left = M(0), M_right = M_left;
@@ -127,7 +127,7 @@ MatrixXd MaterialSolver::createMatrixV() {
 }
 
 VectorXd MaterialSolver::createRightV() {
-    int N = getN();
+    unsigned int N = getN();
     VectorXd vec(2*N + 1);
     double H = getH();
     vec(0) = -P(0, 0);
@@ -152,3 +152,20 @@ VectorXd MaterialSolver::createRightV() {
     return vec;
 }
 
+vector<Polynomial> MaterialSolver::functionT() {
+    unsigned int N = getN();
+    vector<Polynomial> result(N);
+    for (int i = 0; i < N; ++i) {
+        result[i] = Polynomial(C1(i), C2(i));
+    }
+    return result;
+}
+
+vector<Polynomial> MaterialSolver::functionV() {
+    unsigned int N = getN();
+    vector<Polynomial> result(N);
+    for (int i = 0; i < N; ++i) {
+        result[i] = Polynomial(D1(i), D2(i), D3(i));
+    }
+    return result;
+}

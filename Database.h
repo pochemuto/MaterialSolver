@@ -8,6 +8,7 @@
 #include <vector>
 #include "sqlite3pp/sqlite3pp.h"
 #include "Material.h"
+#include "Polynomial.h"
 
 class Database {
     sqlite3pp::database db;
@@ -20,6 +21,8 @@ public:
     }
 
     long storeConfiguration(std::vector<Layer> layers, double t, double tN);
+
+    void storeFunctionT(std::vector<Polynomial> functions);
 };
 
 
