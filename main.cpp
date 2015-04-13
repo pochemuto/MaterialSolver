@@ -3,6 +3,7 @@
 #include "Eigen/Dense"
 #include "MaterialSolver.h"
 #include "sqlite3pp/sqlite3pp.h"
+#include "Database.h"
 
 using namespace std;
 using namespace Eigen;
@@ -30,13 +31,8 @@ int main() {
         y = solver.getH() / steps * n;
     }
 
-    sqlite3pp::database db("test.db");
-    db.execute("CREATE TABLE contacts (name TEXT, value DOUBLE)");
-
-    sqlite3pp::command cmd(db, "INSERT INTO contacts (name, value) VALUES (:name, :value)");
-    cmd.bind(":name", "Alex");
-    cmd.bind(":value", 123.43);
-    cmd.execute();
+    Database db("data.db");
+    db.storeConfiguration(layers, 1200, 1000);
 
     return 0;
 }
