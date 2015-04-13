@@ -12,6 +12,8 @@ using namespace std;
 void MaterialSolver::start() {
     Tcoeffs = solveT();
     Vcoeffs = solveV();
+    cout << Tcoeffs << endl;
+    cout << Vcoeffs << endl;
 }
 
 VectorXd MaterialSolver::solveT() {
