@@ -12,8 +12,6 @@ using namespace std;
 void MaterialSolver::start() {
     Tcoeffs = solveT();
     Vcoeffs = solveV();
-    cout << Tcoeffs << endl;
-    cout << Vcoeffs << endl;
 }
 
 VectorXd MaterialSolver::solveT() {
@@ -87,7 +85,7 @@ double MaterialSolver::getT(double y, int n) {
 
 MatrixXd MaterialSolver::createMatrixV() {
     unsigned int N = getN();
-    int e_column = 2 * N - 1;
+    int e_column = 2 * N;
     MatrixXd mat = MatrixXd::Zero(N * 2 + 1, N * 2 + 1);
     double M_left = M(0), M_right = M_left;
     // строчки вида (0 M0 0 -M1)
@@ -143,15 +141,17 @@ VectorXd MaterialSolver::createRightV() {
 
         v_left = V(i + 1);
         vec(N + i) = (v_left - v_right) * y * y;
+        v_right = v_left;
     }
 
-    vec(2 * N - 2) = -V(N - 1) * H * H;
+    vec(2 * N - 1) = -V(N - 1) * H * H;
 
     double t = 0;
     for (int i = 0; i < N; ++i) {
         t += T(i);
     }
-    vec(2 * N - 1) = t;
+    vec(2 * N) = t;
+    cout << vec << endl;
     return vec;
 }
 
@@ -169,6 +169,18 @@ vector<Polynomial> MaterialSolver::functionV() {
     vector<Polynomial> result(N);
     for (int i = 0; i < N; ++i) {
         result[i] = Polynomial(D1(i), D2(i), D3(i));
+    }
+    return result;
+}
+
+vector<Polynomial> MaterialSolver::functionSigmaX() {
+    unsigned int N = getN();
+    vector<Polynomial> result(N);
+    for (int i = 0; i < N; ++i) {
+        Layer &L = layers[i];
+        double c1 = 2 * (L.mu * L.l) * ex() + L.l * D2(i) - 3 * L.K * L.a * C1(i);
+        double c2 = 2 * L.l * V(i) - 3 * L.K * L.a + C2(i);
+        result[i] = Polynomial(c1, c2);
     }
     return result;
 }

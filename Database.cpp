@@ -22,29 +22,34 @@ void Database::createSchema() {
                        " tN DOUBLE,"
                        " date DATETIME DEFAULT CURRENT_TIMESTAMP)");
 
-    createTable("CREATE TABLE IF NOT EXISTS t_func ("
-                       " cid INTEGER NOT NULL,"
-                       " lnum INTEGER NOT NULL,"
-                       " c1 DOUBLE,"
-                       " c2 DOUBLE)");
-
-    createTable("CREATE TABLE IF NOT EXISTS v_func ("
-                       " cid INTEGER NOT NULL,"
-                       " lnum INTEGER NOT NULL,"
-                       " c1 DOUBLE,"
-                       " c2 DOUBLE,"
-                       " c3 DOUBLE)");
+    createPolynomTable("t_func");
+    createPolynomTable("v_func");
+    createPolynomTable("sx_func");
 
 }
 
-void Database::createTable(char const* schema) {
+
+void Database::createPolynomTable(string table) {
+    string query("CREATE TABLE IF NOT EXISTS ");
+    query += table;
+    query += " ("
+             " cid INTEGER NOT NULL,"
+             " lnum INTEGER NOT NULL,"
+             " c1 DOUBLE,"
+             " c2 DOUBLE,"
+             " c3 DOUBLE)";
+    createTable(query);
+}
+
+void Database::createTable(string schema) {
     int code;
-    code = db.execute(schema);
+    code = db.execute(schema.c_str());
 
     if (code) {
         cerr << db.error_msg() << endl;
     }
 }
+
 
 long Database::storeConfiguration(std::vector<Layer> layers, double t, double tN) {
     sqlite3pp::command st(db, "INSERT INTO conf (t, tN) VALUES (:t, :tN)");
@@ -71,21 +76,24 @@ long Database::storeConfiguration(std::vector<Layer> layers, double t, double tN
 }
 
 void Database::storeFunctionT(int cid, vector<Polynomial> functions) {
-    int lnum = 0;
-    for (auto p : functions) {
-        sqlite3pp::command st(db, "INSERT INTO t_func (cid, lnum, c1, c2) VALUES (:cid, :lnum, :c1, :c2)");
-        st.bind(":cid", cid);
-        st.bind(":lnum", lnum++);
-        st.bind(":c1", p.C1);
-        st.bind(":c2", p.C2);
-        st.execute();
-    }
+    storeFunction(cid, functions, "t_func");
 }
 
-void Database::storeFunctionV(int cid, std::vector<Polynomial> functions) {
+void Database::storeFunctionV(int cid, vector<Polynomial> functions) {
+    storeFunction(cid, functions, "v_func");
+}
+
+void Database::storeFunctionSigmaX(int cid, vector<Polynomial> functions) {
+    storeFunction(cid, functions, "sx_func");
+}
+
+void Database::storeFunction(int cid, vector<Polynomial> functions, string table) {
     int lnum = 0;
+    string query("INSERT INTO ");
+    query += table;
+    query += " (cid, lnum, c1, c2, c3) VALUES (:cid, :lnum, :c1, :c2, :c3)";
     for (auto p : functions) {
-        sqlite3pp::command st(db, "INSERT INTO v_func (cid, lnum, c1, c2, c3) VALUES (:cid, :lnum, :c1, :c2, :c3)");
+        sqlite3pp::command st(db, query.c_str());
         st.bind(":cid", cid);
         st.bind(":lnum", lnum++);
         st.bind(":c1", p.C1);

@@ -17,6 +17,10 @@ int main() {
 
     vector<Layer> layers;
     layers.push_back(Layer(nickel, 2E-6));
+    layers.push_back(Layer(ceramic, 10E-6 / 4));
+    layers.push_back(Layer(nickel, 2E-6));
+    layers.push_back(Layer(ceramic, 10E-6 / 2));
+    layers.push_back(Layer(nickel, 2E-6));
     layers.push_back(Layer(ceramic, 10E-6));
     layers.push_back(Layer(nickel, 2E-6));
 
@@ -36,6 +40,7 @@ int main() {
     int cid = db.storeConfiguration(layers, 1200, 1000);
     db.storeFunctionT(cid, solver.functionT());
     db.storeFunctionV(cid, solver.functionV());
+    db.storeFunctionSigmaX(cid, solver.functionSigmaX());
 
     return 0;
 }

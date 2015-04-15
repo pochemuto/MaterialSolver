@@ -10,21 +10,28 @@
 #include "Material.h"
 #include "Polynomial.h"
 
+using namespace std;
+
 class Database {
     sqlite3pp::database db;
 
     void createSchema();
-    void createTable(char const* schema);
+    void createTable(string schema);
+    void createPolynomTable(string table);
+    void storeFunction(int cid, vector<Polynomial> functions, string table);
 public:
+
     Database(char const* fileName):db(fileName) {
         createSchema();
     }
 
-    long storeConfiguration(std::vector<Layer> layers, double t, double tN);
+    long storeConfiguration(vector<Layer> layers, double t, double tN);
 
-    void storeFunctionT(int cid, std::vector<Polynomial> functions);
+    void storeFunctionT(int cid, vector<Polynomial> functions);
 
-    void storeFunctionV(int cid, std::vector<Polynomial> functions);
+    void storeFunctionV(int cid, vector<Polynomial> functions);
+
+    void storeFunctionSigmaX(int cid, vector<Polynomial> functions);
 };
 
 

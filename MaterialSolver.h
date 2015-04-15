@@ -68,6 +68,10 @@ public:
         return 2 * (2 * layers[i].mu + layers[i].l) * V(i) * y - 3 * layers[i].K * layers[i].a * getT(y, i);
     }
 
+    inline double ex() {
+        return Vcoeffs(2 * getN() - 1); // последнее значение в векторе
+    }
+
     inline double T(int i) {
         // (y_i^2 - y_{i-1}^2) = (y_i - y_{i-1})(y_i + y_{i-1})
         //                       |-------------||-------------|
@@ -77,9 +81,10 @@ public:
         for (int j = 0; j < i; ++j) {
             h += layers[j].y;
         }
-        h = h * 2 + layers[i].y;
-        return 3*layers[i].K*layers[i].a*layers[i].y
-               + (1.5 * layers[i].K * layers[i].a * C2(i) - layers[i].l * V(i)) * h;
+        Layer &L = layers[i];
+        h = h * 2 + L.y;
+        return 3* L.K* L.a* L.y
+               + (1.5 * L.K * L.a * C2(i) - L.l * V(i)) * L.y * h;
     }
 
 
@@ -92,6 +97,8 @@ public:
     vector<Polynomial> functionT();
 
     vector<Polynomial> functionV();
+
+    vector<Polynomial> functionSigmaX();
 
     VectorXd solveT();
 
