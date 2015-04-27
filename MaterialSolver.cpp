@@ -118,7 +118,7 @@ MatrixXd MaterialSolver::createMatrixV() {
     double e_coeff = 0;
     // последняя строчка
     for (int i = 0; i < N; ++i) {
-        mat(row, 2 * i) = layers[i].l * layers[i].y;
+        mat(row, 2 * i + 1) = layers[i].l * layers[i].y;
         e_coeff += (layers[i].l + layers[i].mu) * layers[i].y;
     }
     mat(row, e_column) = 2 * e_coeff;
@@ -178,8 +178,8 @@ vector<Polynomial> MaterialSolver::functionSigmaX() {
     vector<Polynomial> result(N);
     for (int i = 0; i < N; ++i) {
         Layer &L = layers[i];
-        double c1 = 2 * (L.mu * L.l) * ex() + L.l * D2(i) - 3 * L.K * L.a * C1(i);
-        double c2 = 2 * L.l * V(i) - 3 * L.K * L.a + C2(i);
+        double c1 = 2 * (L.mu + L.l) * ex() + L.l * D2(i) - 3 * L.K * L.a * C1(i);
+        double c2 = 2 * L.l * V(i) - 3 * L.K * L.a * C2(i);
         result[i] = Polynomial(c1, c2);
     }
     return result;

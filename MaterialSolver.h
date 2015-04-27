@@ -69,7 +69,7 @@ public:
     }
 
     inline double ex() {
-        return Vcoeffs(2 * getN() - 1); // последнее значение в векторе
+        return Vcoeffs(2 * getN()); // последнее значение в векторе
     }
 
     inline double T(int i) {
@@ -83,7 +83,7 @@ public:
         }
         Layer &L = layers[i];
         h = h * 2 + L.y;
-        return 3* L.K* L.a* L.y
+        return 3 * L.K * L.a * C1(i) * L.y
                + (1.5 * L.K * L.a * C2(i) - L.l * V(i)) * L.y * h;
     }
 
