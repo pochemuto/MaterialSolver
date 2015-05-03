@@ -43,19 +43,6 @@ private:
         return V(i);
     }
 
-public:
-    MaterialSolver(vector<Layer> layers, double t, double tN) : t(t), tN(tN) {
-        this->layers = layers;
-        H = 0;
-        for (auto l : layers) {
-            H += l.y;
-        }
-    }
-
-    inline unsigned int getN() { return (uint) layers.size(); }
-
-    inline double getH() { return H; }
-
     inline double V(int i) {
         return 3 * layers[i].a * C2(i) * layers[i].K / 2 / (layers[i].l + 2 * layers[i].mu);
     }
@@ -66,10 +53,6 @@ public:
 
     inline double P(int i, double y) {
         return 2 * (2 * layers[i].mu + layers[i].l) * V(i) * y - 3 * layers[i].K * layers[i].a * getT(y, i);
-    }
-
-    inline double ex() {
-        return Vcoeffs(2 * getN()); // последнее значение в векторе
     }
 
     inline double T(int i) {
@@ -87,18 +70,10 @@ public:
                + (1.5 * L.K * L.a * C2(i) - L.l * V(i)) * L.y * h;
     }
 
-
-    void start();
-
     double getT(double y);
 
     double getT(double y, int n);
 
-    vector<Polynomial> functionT();
-
-    vector<Polynomial> functionV();
-
-    vector<Polynomial> functionSigmaX();
 
     VectorXd solveT();
 
@@ -109,6 +84,33 @@ public:
     VectorXd createRightV();
 
     VectorXd solveV();
+
+public:
+    MaterialSolver(vector<Layer> layers, double t, double tN) : t(t), tN(tN) {
+        this->layers = layers;
+        H = 0;
+        for (auto l : layers) {
+            H += l.y;
+        }
+    }
+
+    inline unsigned int getN() { return (uint) layers.size(); }
+
+    inline double getH() { return H; }
+
+    inline double ex() {
+        return Vcoeffs(2 * getN()); // последнее значение в векторе
+    }
+
+
+    void start();
+
+    vector<Polynomial> functionT();
+
+    vector<Polynomial> functionV();
+
+    vector<Polynomial> functionSigmaX();
+
 };
 
 
