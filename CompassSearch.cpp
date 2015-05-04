@@ -26,14 +26,18 @@ Step CompassSearch<Func>::doStep() {
     point x_min;
     double f_min = -DBL_MAX;
     bool foundOne = false; // нашли хотя-бы одно направление
+    // по каждой координате идем в обе стороны
     for (int i = 0; i < N; ++i) {
-        vector<double> x_step = stepFor(i);
-        Result f_step = func.eval(x_step);
-        if (f_step.success && f_step.value < f_min) {
-            f_min = f_step.value;
-            x_min = x_step;
-            foundOne = true;
+        for (int dir = 0; dir < 2; ++dir) {
+            vector<double> x_step = stepFor(i, dir == 0 ? DIR_FORWARD : DIR_BACKWARD);
+            Result f_step = func.eval(x_step);
+            if (f_step.success && f_step.value < f_min) {
+                f_min = f_step.value;
+                x_min = x_step;
+                foundOne = true;
+            }
         }
+
     }
     assert(foundOne); // по идее, в худшем случае мы вернемся к предыдущей точке
     Step result(f_min, x_min);
@@ -48,8 +52,8 @@ bool CompassSearch<Func>::shrinkK() {
 }
 
 template<class Func>
-typename CompassSearch<Func>::point CompassSearch<Func>::stepFor(int i) {
+typename CompassSearch<Func>::point CompassSearch<Func>::stepFor(int i, int direction) {
     point x_step = x_star;
-    x_step[i] += k;
+    x_step[i] += k * direction;
     return x_step;
 }

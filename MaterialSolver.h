@@ -85,13 +85,12 @@ private:
 
     VectorXd solveV();
 
+    void calculateH();
+
 public:
     MaterialSolver(vector<Layer> layers, double t, double tN) : t(t), tN(tN) {
         this->layers = layers;
-        H = 0;
-        for (auto l : layers) {
-            H += l.y;
-        }
+        calculateH();
     }
 
     inline unsigned int getN() { return (uint) layers.size(); }
@@ -102,7 +101,6 @@ public:
         return Vcoeffs(2 * getN()); // последнее значение в векторе
     }
 
-
     void start();
 
     vector<Polynomial> functionT();
@@ -111,6 +109,9 @@ public:
 
     vector<Polynomial> functionSigmaX();
 
+    inline Layer& layer(int n) {
+        return layers[n];
+    }
 };
 
 

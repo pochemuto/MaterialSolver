@@ -29,6 +29,7 @@ VectorXd MaterialSolver::solveV() {
     return matV.colPivHouseholderQr().solve(right);
 }
 
+
 MatrixXd MaterialSolver::createMatrixT() {
     unsigned int N = getN();
     MatrixXd mat = MatrixXd::Zero(N * 2, N * 2);
@@ -183,4 +184,11 @@ vector<Polynomial> MaterialSolver::functionSigmaX() {
         result[i] = Polynomial(c1, c2);
     }
     return result;
+}
+
+void MaterialSolver::calculateH() {
+    H = 0;
+    for (auto l : layers) {
+        H += l.y;
+    }
 }

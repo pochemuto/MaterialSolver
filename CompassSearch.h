@@ -20,16 +20,22 @@ private:
     double k;
     double f_star;
     point x_star;
-    const unsigned long N;
+    const unsigned int N;
 
 
-    point stepFor(int i);
+    // шаг по координате i в направлении DIR
+    point stepFor(int i, int direction);
     bool shrinkK();
     Step doStep();
 
+    static const int DIR_FORWARD = 1;
+    static const int DIR_BACKWARD = -1;
 public:
-    CompassSearch(const vector<double>& x0, double k, Function& function):x_star(x0),k(k),func(function),N(x0.size()){
-        f_star = func.eval(x0);
+    CompassSearch(Function &function, const vector<double> &x0, double k) :x_star(x0),k(k),func(function),
+                                                                           N((unsigned int const) x0.size()){
+        Result r = func.eval(x0);
+        assert(r.success);
+        f_star = r.value;
     }
 
     vector<double> search();

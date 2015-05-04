@@ -5,6 +5,8 @@
 #ifndef MATERIALSOLVER_RESULT_H
 #define MATERIALSOLVER_RESULT_H
 
+#include <float.h>
+
 /*
  * Инкапсулирует значение функции или сигнал, что значение не должно быть использовано.
  */
@@ -20,7 +22,5 @@ struct Result {
 private:
     Result(double value, bool success): success(success),value(value){}
 };
-
-const Result Result::FALSE(DBL_MAX, false);
 
 #endif //MATERIALSOLVER_RESULT_H
