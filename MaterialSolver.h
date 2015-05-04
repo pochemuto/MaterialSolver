@@ -8,8 +8,8 @@
 
 #include <vector>
 #include "Eigen/Dense"
-#include "Material.h"
-#include "Polynomial.h"
+#include "struct/Material.h"
+#include "struct/Polynomial.h"
 
 using namespace std;
 using namespace Eigen;
@@ -90,7 +90,6 @@ private:
 public:
     MaterialSolver(vector<Layer> layers, double t, double tN) : t(t), tN(tN) {
         this->layers = layers;
-        calculateH();
     }
 
     inline unsigned int getN() { return (uint) layers.size(); }
@@ -108,6 +107,8 @@ public:
     vector<Polynomial> functionV();
 
     vector<Polynomial> functionSigmaX();
+
+    double sigmaXMax();
 
     inline Layer& layer(int n) {
         return layers[n];

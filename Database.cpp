@@ -3,7 +3,7 @@
 //
 
 #include "Database.h"
-#include "Polynomial.h"
+#include "struct/Polynomial.h"
 #include <iostream>
 
 using namespace std;

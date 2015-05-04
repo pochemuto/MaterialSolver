@@ -4,12 +4,14 @@
 
 #include <iostream>
 #include <assert.h>
+#include <float.h>
 #include "MaterialSolver.h"
 
 
 using namespace std;
 
 void MaterialSolver::start() {
+    calculateH();
     Tcoeffs = solveT();
     Vcoeffs = solveV();
 }
@@ -73,7 +75,6 @@ double MaterialSolver::getT(double y) {
         lower = upper;
         n++;
     }
-    cout << "n = " << n << endl;
     return getT(y, n);
 }
 
@@ -124,7 +125,6 @@ MatrixXd MaterialSolver::createMatrixV() {
     }
     mat(row, e_column) = 2 * e_coeff;
 
-    cout << mat << endl;
     return mat;
 }
 
@@ -152,7 +152,6 @@ VectorXd MaterialSolver::createRightV() {
         t += T(i);
     }
     vec(2 * N) = t;
-    cout << vec << endl;
     return vec;
 }
 
@@ -191,4 +190,19 @@ void MaterialSolver::calculateH() {
     for (auto l : layers) {
         H += l.y;
     }
+}
+
+double MaterialSolver::sigmaXMax() {
+    vector<Polynomial> sigmaX = functionSigmaX();
+    double y_from = 0;
+    double sigma_max = 0;
+    for (int i = 0; i < sigmaX.size(); ++i) {
+        double y_to = y_from + layers[i].y;
+        double segment_max = abs(sigmaX[i].maximize(y_from, y_to));
+        if (abs(segment_max) > sigma_max) {
+            sigma_max = segment_max;
+        }
+        y_from = y_to;
+    }
+    return sigma_max;
 }

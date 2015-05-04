@@ -7,10 +7,13 @@
 
 
 #include <vector>
-#include "Result.h"
-#include "MaterialSolver.h"
+#include <iostream>
+#include "../struct/Result.h"
+#include "../MaterialSolver.h"
 
 using std::vector;
+using std::cout;
+using std::endl;
 
 class FixedThickness {
 
@@ -69,6 +72,11 @@ public:
      * point - вектор координат резделов слоев
      */
     Result eval(vector<double> point);
+
+    bool continueFind(double sigma, double deltaSigma) {
+        cout << "sigma = " << abs(deltaSigma) << endl;
+        return abs(deltaSigma) > 1E-13;
+    }
 };
 
 

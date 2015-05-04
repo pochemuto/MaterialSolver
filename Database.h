@@ -7,8 +7,8 @@
 
 #include <vector>
 #include "sqlite3pp/sqlite3pp.h"
-#include "Material.h"
-#include "Polynomial.h"
+#include "struct/Material.h"
+#include "struct/Polynomial.h"
 
 using namespace std;
 

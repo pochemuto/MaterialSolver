@@ -6,6 +6,9 @@
 #define MATERIALSOLVER_RESULT_H
 
 #include <float.h>
+#include <iostream>
+
+using std::ostream;
 
 /*
  * Инкапсулирует значение функции или сигнал, что значение не должно быть использовано.
@@ -18,6 +21,9 @@ struct Result {
 
     // статическое значение - отсутствие результата
     static const Result FALSE;
+
+    friend ostream& operator<<(ostream& os, const Result& r);
+
 
 private:
     Result(double value, bool success): success(success),value(value){}

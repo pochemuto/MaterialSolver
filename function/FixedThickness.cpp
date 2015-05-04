@@ -6,7 +6,12 @@
 #include "FixedThickness.h"
 
 Result FixedThickness::eval(vector<double> point) {
-    return Result::FALSE;
+    if (!applyPoint(point)) {
+        return Result::FALSE;
+    }
+
+    solver->start();
+    return solver->sigmaXMax();
 }
 
 bool FixedThickness::applyPoint(const vector<double> &point) {
