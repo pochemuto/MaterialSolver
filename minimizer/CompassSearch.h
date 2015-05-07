@@ -36,7 +36,7 @@ public:
     CompassSearch(Function &function, const vector<double> &x0, double k) :x_star(x0),k(k),func(function),
                                                                            N((unsigned int const) x0.size()){
         Result r = func.eval(x0);
-        assert(r.success);
+        assert(r.success());
         f_star = r.value;
     }
 
@@ -74,7 +74,7 @@ Step CompassSearch<Func>::doStep() {
         for (int dir = 0; dir < 2; ++dir) {
             vector<double> x_step = stepFor(i, dir == 0 ? DIR_FORWARD : DIR_BACKWARD);
             Result f_step = func.eval(x_step);
-            if (f_step.success && f_step.value < f_min) {
+            if (f_step.success() && f_step.value < f_min) {
                 f_min = f_step.value;
                 x_min = x_step;
                 foundOne = true;

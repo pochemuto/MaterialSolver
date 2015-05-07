@@ -7,7 +7,7 @@
 
 Result FixedThickness::eval(vector<double> point) {
     if (!applyPoint(point)) {
-        return Result::FALSE;
+        return Result::INDETERMINATE;
     }
 
     solver->start();

@@ -13,20 +13,42 @@ using std::ostream;
 /*
  * Инкапсулирует значение функции или сигнал, что значение не должно быть использовано.
  */
-struct Result {
-    const double value;
-    const bool success;
+class Result {
 
-    Result(double value): success(true),value(value){}
+    enum TYPE {
+        TYPE_SUCCESS,        // успешный результат
+        TYPE_INDETERMINATE,  // функция в заданной точке не определена
+        TYPE_VIOLATED        // нарушены ограничения
+    };
+
+    const TYPE type;
+
+public:
+    const double value;
+
+    Result(double value): type(TYPE_SUCCESS),value(value){}
 
     // статическое значение - отсутствие результата
-    static const Result FALSE;
+    static const Result INDETERMINATE;
+    static const Result VIOLATED;
+
+    inline bool indeterminate() {
+        return type == TYPE_INDETERMINATE;
+    }
+
+    inline bool violated() {
+        return type == TYPE_VIOLATED;
+    }
+
+    inline bool success() {
+        return type == TYPE_SUCCESS;
+    }
 
     friend ostream& operator<<(ostream& os, const Result& r);
 
 
 private:
-    Result(double value, bool success): success(success),value(value){}
+    Result(Result::TYPE type): type(type),value(-DBL_MAX){}
 };
 
 #endif //MATERIALSOLVER_RESULT_H
