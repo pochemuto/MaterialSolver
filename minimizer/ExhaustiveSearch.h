@@ -29,7 +29,7 @@ private:
      * возвращает множитель, соответствующий биту в pos
      */
     inline int signOf(unsigned long bits, int pos) {
-        return (bits >> pos) & 1 == 0 ? -1 : 1;
+        return ((bits >> pos) & 1) == 0 ? -1 : 1;
     }
 
 public:
@@ -41,9 +41,41 @@ public:
     }
 
     vector<double> search();
+
+    static bool next(vector<double> &point, int fixedAxis, double min, double max, double step);
+
 };
 
-vector<double> ExhaustiveSearch::search() {
+template <class Func>
+bool ExhaustiveSearch<Func>::next(vector<double> &point, int fixedAxis, double min, double max, double step) {
+    int N = (int) point.size();
+    for (int i = 0; i < N; ++i) {
+        if (i == fixedAxis) {
+            continue;
+        }
+
+        double nextVal = point[i] + step;
+        if (nextVal > max) {
+            point[i] = min;
+
+            // нужно увеличить следующий разряд, но мы уже на последнем
+            // или последний - фиксирован, а мы на предпоследнем,
+            // то считаем что перебрали все
+            if (i == N - 1 || (i == N - 2 && fixedAxis == N - 1)) {
+                return false;  // перебрали все
+            }
+        } else {
+            point[i] = nextVal;
+            // ещё влазит
+            break;
+        }
+    }
+
+    return true;
+}
+
+template <class Func>
+vector<double> ExhaustiveSearch<Func>::search() {
     vector<double> arg(N);
     vector<double> arg_max(N);
     double func_max = -DBL_MAX;
@@ -84,6 +116,22 @@ vector<double> ExhaustiveSearch::search() {
                     arg_max = arg;
                 }
             }
+        }
+    }
+
+    /*
+     * Обход всех N-1 мерных граней куба. При этом ребра уже пройдены на прошлом шаге
+     * поэтому обходим только внутренние части, без границ -r и r
+     */
+    for (int axis = 0; axis < N; ++axis) {
+        int nextIncrementPosition = 0;
+        while (nextIncrementPosition < N) {
+
+        }
+
+        for (int minus = 0; minus < 2; ++minus) {
+            // у каждой грани есть противоположная
+            int sign = minus == 0 ? -1 : 1;
         }
     }
 }
