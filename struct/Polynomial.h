@@ -19,7 +19,7 @@ struct Polynomial {
     Polynomial(double C1 = 0, double C2 = 0, double C3 = 0) : C1(C1), C2(C2), C3(C3) { }
 
     double apply(double y) {
-        return C1 + C2 * y + C2 * y * y;
+        return C1 + C2 * y + C3 * y * y;
     }
 
     double maximize(double a, double b) {
