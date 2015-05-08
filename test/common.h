@@ -20,6 +20,12 @@
 
 #define ASSERT_ARRAY_EQUALS(expected_begin, expected_end, actual_begin, actual_end) TEST_BOOL(testing::assert_array_equals(expected_begin, expected_end, actual_begin, actual_end, STR(actual_begin)))
 
+#define ASSERT_EXCEPTION(expr, exception) try {\
+        expr; \
+        std::cerr << ">>> ERROR: " << STR(expr) << "; expected exception " << STR(exception) << " not thrown" << std::endl;\
+        return -1; \
+    } catch (exception e) {}
+
 namespace testing {
     using std::string;
     using std::cerr;
