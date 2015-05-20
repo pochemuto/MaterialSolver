@@ -8,6 +8,7 @@
 #include <vector>
 #include <float.h>
 #include <assert.h>
+#include <math.h>
 #include "../function/tpoint.h"
 #include "../struct/Step.h"
 #include "../struct/Result.h"
@@ -22,7 +23,7 @@ private:
     double f_star;
     TPoint x_star;
     const unsigned int N;
-
+    double eps;
 
     // шаг по координате i в направлении DIR
     TPoint stepFor(int i, int direction);
@@ -31,9 +32,10 @@ private:
 
     static const int DIR_FORWARD = 1;
     static const int DIR_BACKWARD = -1;
+
 public:
-    CompassSearch(Function &function, const TPoint &x0, double k) :x_star(x0),k(k),func(function),
-                                                                           N((unsigned int const) x0.size()){
+    CompassSearch(Function &function, const TPoint &x0, double k, double eps = 1E-200) :x_star(x0),k(k),func(function),
+                                                                           N((unsigned int const) x0.size()),eps(eps){
         Result r = func.eval(x0);
         assert(r.success());
         f_star = r.value;
@@ -58,7 +60,7 @@ TPoint CompassSearch<Func>::search() {
                 return x_star;
             }
         }
-    } while (func.continueFind(f_star, delta));
+    } while (fabs(delta) > eps);
 
     return x_star;
 }

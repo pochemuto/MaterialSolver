@@ -7,6 +7,9 @@
 
 #include <iostream>
 #include <string>
+#include <assert.h>
+#include "../function/tpoint.h"
+#include "../struct/Result.h"
 
 #define STR(s) #s
 
@@ -14,6 +17,7 @@
 #define TEST(expr) if (expr != 0) return -1
 
 #define ASSERT_EQAULS(expected, actual) TEST_BOOL(testing::assert_equals(expected, actual, STR(actual)))
+#define ASSERT_EQAULS_EPS(expected, actual, eps) TEST_BOOL(testing::assert_equals(expected, actual, eps, STR(actual)))
 
 #define ASSERT_TRUE(actual)  TEST_BOOL(testing::assert_true(actual, STR(actual)))
 #define ASSERT_FALSE(actual) TEST_BOOL(testing::assert_false(actual, STR(actual)))
@@ -34,6 +38,16 @@ namespace testing {
     template<typename T>
     bool assert_equals(T expected, T actual, string expression) {
         if (expected != actual) { \
+            cerr << ">>> ERROR: " << expression << "; expected = '" << expected << "'; actual = '" << actual << "'" << endl;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    template<typename T>
+    bool assert_equals(T expected, T actual, T eps, string expression) {
+        if (expected > actual + eps || expected < actual - eps) { \
             cerr << ">>> ERROR: " << expression << "; expected = '" << expected << "'; actual = '" << actual << "'" << endl;
             return false;
         } else {
@@ -81,5 +95,26 @@ namespace testing {
         return true;
     }
 }
+
+class EllipticParaboloid {
+    const TPoint center;
+    const double a2;
+    const double b2;
+
+    inline double sqr(double val) {
+        return val*val;
+    }
+
+public:
+    EllipticParaboloid(TPoint const &center, double a = 1, double b = 1) : center(center),a2(a*a),b2(b*b) {
+        assert(a != 0);
+        assert(b != 0);
+        assert(center.size() == 2);
+    }
+
+    Result eval(TPoint x) {
+        return sqr(x[0] - center[0])/a2 + sqr(x[1] - center[1])/b2;
+    }
+};
 
 #endif //MATERIALSOLVER_COMMON_H

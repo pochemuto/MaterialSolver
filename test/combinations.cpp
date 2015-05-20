@@ -10,7 +10,7 @@
 
 using namespace std;
 
-struct Func {
+struct EmptyFunc {
     Result eval(vector<double> x) {
         return 0;
     }
@@ -18,7 +18,7 @@ struct Func {
 
 typedef double point[4];
 
-int testNext(ExhaustiveSearch<Func> &search, const TPoint &shift, point expected, TPoint &x) {
+int testNext(ExhaustiveSearch<EmptyFunc> &search, const TPoint &shift, point expected, TPoint &x) {
     ASSERT_TRUE(search.next(x, shift, 1, 40, 42, 1));
     ASSERT_ARRAY_EQUALS(expected, expected + 4, x.begin(), x.end());
 
@@ -26,12 +26,12 @@ int testNext(ExhaustiveSearch<Func> &search, const TPoint &shift, point expected
 }
 
 int testZeroShift() {
-    Func f;
+    EmptyFunc f;
     TPoint zero {0, 0, 0, 0};
 
     TPoint x0 {41, 72, 41, 41};
 
-    ExhaustiveSearch<Func> search(f, x0, 0.1);
+    ExhaustiveSearch<EmptyFunc> search(f, x0, 0.1);
 
     //testNext - интервал от 40 - 42
     TEST(testNext(search, zero, (point) {42, 72, 41, 41}, x0));
@@ -58,12 +58,12 @@ int testZeroShift() {
 }
 
 int testShift() {
-    Func f;
+    EmptyFunc f;
     TPoint shift{100, 200, 300, 900};
 
     TPoint x0 {141, 72, 341, 941};
 
-    ExhaustiveSearch<Func> search(f, x0, 0.1);
+    ExhaustiveSearch<EmptyFunc> search(f, x0, 0.1);
 
     //testNext - интервал от 40 - 42
 
