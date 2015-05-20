@@ -9,19 +9,20 @@
 #include <float.h>
 #include <assert.h>
 #include <math.h>
+#include <limits>
 #include "../struct/Result.h"
+#include "../function/tpoint.h"
 
 using std::vector;
 
 template <class Function>
 class ExhaustiveSearch {
 private:
-    typedef vector<double> point;
 
     Function& func;
     double k;
-    double f_star;
-    point x_star;
+    double f_min;
+    const TPoint x_start;
     const unsigned int N; // количество переменных функции
 
     /*
@@ -33,21 +34,22 @@ private:
     }
 
 public:
-    ExhaustiveSearch(Function &function, const vector<double> &x0, double k) :x_star(x0),k(k),func(function),
+
+    ExhaustiveSearch(Function &function, const TPoint &x0, double k) :x_start(x0),k(k),func(function),
                                                                            N((unsigned int const) x0.size()){
         Result r = func.eval(x0);
         assert(r.success());
-        f_star = r.value;
+        f_min = r.value;
     }
 
     vector<double> search();
 
-    static bool next(vector<double> &point, int fixedAxis, double min, double max, double step);
+    static bool next(TPoint &point, const TPoint &shift, int fixedAxis, double min, double max, double step);
 
 };
 
 template <class Func>
-bool ExhaustiveSearch<Func>::next(vector<double> &point, int fixedAxis, double min, double max, double step) {
+bool ExhaustiveSearch<Func>::next(TPoint &point, const TPoint &shift,  int fixedAxis, double min, double max, double step) {
     int N = (int) point.size();
     for (int i = 0; i < N; ++i) {
         if (i == fixedAxis) {
@@ -55,8 +57,8 @@ bool ExhaustiveSearch<Func>::next(vector<double> &point, int fixedAxis, double m
         }
 
         double nextVal = point[i] + step;
-        if (nextVal > max) {
-            point[i] = min;
+        if (nextVal > max + shift[i]) {
+            point[i] = min + shift[i];
 
             // нужно увеличить следующий разряд, но мы уже на последнем
             // или последний - фиксирован, а мы на предпоследнем,
@@ -75,10 +77,10 @@ bool ExhaustiveSearch<Func>::next(vector<double> &point, int fixedAxis, double m
 }
 
 template <class Func>
-vector<double> ExhaustiveSearch<Func>::search() {
-    vector<double> arg(N);
-    vector<double> arg_max(N);
-    double func_max = -DBL_MAX;
+TPoint ExhaustiveSearch<Func>::search() {
+    TPoint arg(N);
+    TPoint arg_max(N);
+    double func_min = std::numeric_limits<double>::max();
     double r = k;
     bool hasPoint = false;
 
@@ -105,14 +107,15 @@ vector<double> ExhaustiveSearch<Func>::search() {
             }
 
             // на этом шаге у нас уже есть зафиксированная вершина
-            for (double axisValue = -r; axisValue <= r; axisValue += k) {
+            double endValue = x_start[axis] + r;
+            for (double axisValue = x_start[axis] - r; axisValue <= endValue; axisValue += k) {
                 arg[axis] = axisValue;
                 Result r = func.eval(axisValue);
                 if (!r.indeterminate()) {
                     hasPoint = true; // есть хотя бы одна точка на границе этого куба
                 }
-                if (r.success() && r.value > func_max) {
-                    func_max = r.value;
+                if (r.success() && r.value < func_min) {
+                    func_min = r.value;
                     arg_max = arg;
                 }
             }
@@ -124,15 +127,14 @@ vector<double> ExhaustiveSearch<Func>::search() {
      * поэтому обходим только внутренние части, без границ -r и r
      */
     for (int axis = 0; axis < N; ++axis) {
-        int nextIncrementPosition = 0;
-        while (nextIncrementPosition < N) {
-
+        for (int i = 0; i < N; ++i) {
+            arg[i] = x_start[i] - r + k;
         }
-
-        for (int minus = 0; minus < 2; ++minus) {
-            // у каждой грани есть противоположная
-            int sign = minus == 0 ? -1 : 1;
-        }
+        do {
+            for (int minus = 0; minus < 2; ++minus) {
+                arg[axis] = (minus == 0) ? x_start[axis] - r : x_start[axis] + r;
+            }
+        } while (next(arg, x_start, axis, -r + k, r - k, k));
     }
 }
 

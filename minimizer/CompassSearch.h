@@ -8,6 +8,7 @@
 #include <vector>
 #include <float.h>
 #include <assert.h>
+#include "../function/tpoint.h"
 #include "../struct/Step.h"
 #include "../struct/Result.h"
 
@@ -16,36 +17,34 @@ using std::vector;
 template <class Function>
 class CompassSearch {
 private:
-    typedef vector<double> point;
-
     Function& func;
     double k;
     double f_star;
-    point x_star;
+    TPoint x_star;
     const unsigned int N;
 
 
     // шаг по координате i в направлении DIR
-    point stepFor(int i, int direction);
+    TPoint stepFor(int i, int direction);
     bool shrinkK();
     Step doStep();
 
     static const int DIR_FORWARD = 1;
     static const int DIR_BACKWARD = -1;
 public:
-    CompassSearch(Function &function, const vector<double> &x0, double k) :x_star(x0),k(k),func(function),
+    CompassSearch(Function &function, const TPoint &x0, double k) :x_star(x0),k(k),func(function),
                                                                            N((unsigned int const) x0.size()){
         Result r = func.eval(x0);
         assert(r.success());
         f_star = r.value;
     }
 
-    vector<double> search();
+    TPoint search();
 };
 
 
 template<class Func>
-vector<double> CompassSearch<Func>::search() {
+TPoint CompassSearch<Func>::search() {
     double delta = 0;
     do {
         Step step = doStep();
@@ -66,13 +65,13 @@ vector<double> CompassSearch<Func>::search() {
 
 template<class Func>
 Step CompassSearch<Func>::doStep() {
-    point x_min;
+    TPoint x_min;
     double f_min = DBL_MAX;
     bool foundOne = false; // нашли хотя-бы одно направление
     // по каждой координате идем в обе стороны
     for (int i = 0; i < N; ++i) {
         for (int dir = 0; dir < 2; ++dir) {
-            vector<double> x_step = stepFor(i, dir == 0 ? DIR_FORWARD : DIR_BACKWARD);
+            TPoint x_step = stepFor(i, dir == 0 ? DIR_FORWARD : DIR_BACKWARD);
             Result f_step = func.eval(x_step);
             if (f_step.success() && f_step.value < f_min) {
                 f_min = f_step.value;
@@ -95,8 +94,8 @@ bool CompassSearch<Func>::shrinkK() {
 }
 
 template<class Func>
-typename CompassSearch<Func>::point CompassSearch<Func>::stepFor(int i, int direction) {
-    point x_step = x_star;
+TPoint CompassSearch<Func>::stepFor(int i, int direction) {
+    TPoint x_step = x_star;
     x_step[i] += k * direction;
     return x_step;
 }

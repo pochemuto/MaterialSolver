@@ -5,7 +5,7 @@
 #include <iostream>
 #include "FixedThickness.h"
 
-Result FixedThickness::eval(vector<double> point) {
+Result FixedThickness::eval(TPoint point) {
     if (!applyPoint(point)) {
         return Result::INDETERMINATE;
     }
@@ -14,11 +14,11 @@ Result FixedThickness::eval(vector<double> point) {
     return solver->sigmaXMax();
 }
 
-bool FixedThickness::applyPoint(const vector<double> &point) {
+bool FixedThickness::applyPoint(const TPoint &point) {
     unsigned int pointSize = (unsigned int) x0_.size();
     assert(point.size() == pointSize);
     double y_last = 0;
-    vector<double> heights(pointSize);
+    TPoint heights(pointSize);
     for (int i = 0; i < pointSize; ++i) {
         double y = point[i];
         double h = y - y_last;

@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <iostream>
+#include "tpoint.h"
 #include "../struct/Result.h"
 #include "../MaterialSolver.h"
 
@@ -18,14 +19,14 @@ using std::endl;
 class FixedThickness {
 
     MaterialSolver* solver;
-    vector<double> x0_;
+    TPoint x0_;
     double thick;
 
     static const bool ceramicFirst = true;
 
 
 public:
-    bool applyPoint(const vector<double> &point);
+    bool applyPoint(const TPoint &point);
 
     /*
      * bottom - слой подложка
@@ -64,14 +65,14 @@ public:
         delete solver;
     }
 
-    const vector<double>& x0() const {
+    const TPoint& x0() const {
         return x0_;
     }
 
     /*
      * point - вектор координат резделов слоев
      */
-    Result eval(vector<double> point);
+    Result eval(TPoint point);
 
     bool continueFind(double sigma, double deltaSigma) {
         cout << "sigma = " << abs(deltaSigma) << endl;
