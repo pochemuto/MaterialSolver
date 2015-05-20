@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
+#include <math.h>
 #include "../function/tpoint.h"
 #include "../struct/Result.h"
 
@@ -96,6 +97,8 @@ namespace testing {
     }
 }
 
+#define _TRACE_FUNCTION_CALL
+
 class EllipticParaboloid {
     const TPoint center;
     const double a2;
@@ -106,6 +109,8 @@ class EllipticParaboloid {
     }
 
 public:
+    double scopeRadius = 0;
+
     EllipticParaboloid(TPoint const &center, double a = 1, double b = 1) : center(center),a2(a*a),b2(b*b) {
         assert(a != 0);
         assert(b != 0);
@@ -113,7 +118,21 @@ public:
     }
 
     Result eval(TPoint x) {
-        return sqr(x[0] - center[0])/a2 + sqr(x[1] - center[1])/b2;
+        #ifdef TRACE_FUNCTION_CALL
+        std::cout << "func(" << x[0] << ", " << x[1] << ") = ";
+        #endif
+        if (scopeRadius > 0 && sqrt(sqr(x[0] - center[0]) + sqr(x[1] - center[1])) > scopeRadius) {
+            // вышли за область определения
+            #ifdef TRACE_FUNCTION_CALL
+            std::cout << "indeterminate" << std::endl;
+            #endif
+            return Result::INDETERMINATE;
+        }
+        double value = sqr(x[0] - center[0])/a2 + sqr(x[1] - center[1])/b2;
+        #ifdef TRACE_FUNCTION_CALL
+        std::cout << value << std::endl;
+        #endif
+        return value;
     }
 };
 

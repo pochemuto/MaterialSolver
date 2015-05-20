@@ -82,60 +82,77 @@ TPoint ExhaustiveSearch<Func>::search() {
     TPoint arg_max(N);
     double func_min = std::numeric_limits<double>::max();
     double r = k;
-    bool hasPoint = false;
 
-    /*
-     * Обход всех ребер N-мерного параллелограмма, с длиной ребра r
-     * пробегаем по всем осям, и для каждой оси проходим по всем ребрам, параллельным этой оси
-     */
-    unsigned long signsMax = (unsigned long) pow(2, N + 1);
-    for (int axis = 0; axis < N; ++axis) {
+    bool hasPoint;
+    do {
+        hasPoint = false;
+
         /*
-         * Перебираем все вершины N-мерного параллелограмма в плоскости axis = const
-         * при этом проходим по ребру от этой вершины в направлении axis
+         * Обход всех ребер N-мерного параллелограмма, с длиной ребра r
+         * пробегаем по всем осям, и для каждой оси проходим по всем ребрам, параллельным этой оси
          */
-        for (unsigned long signs = 0; signs < signsMax; ++signs) { // знаки переменных - битовое значение
-            // количество знаков на одно меньше, чем количество переменных
-            // по одной переменной мы пробегаемся по всему интервалу
-            // соответственно начиная с axis-элемента i будет отставать на единицу
-            short int shift = 0;
-            for (int i = 0; i < signsMax; ++i) {
-                if (i == axis) {
-                    shift = 1;
+        unsigned long signsMax = (unsigned long) pow(2, N - 1);
+        for (int axis = 0; axis < N; ++axis) {
+            /*
+             * Перебираем все вершины N-мерного параллелограмма в плоскости axis = const
+             * при этом проходим по ребру от этой вершины в направлении axis
+             */
+            for (unsigned long signs = 0; signs < signsMax; ++signs) { // знаки переменных - битовое значение
+                // количество знаков на одно меньше, чем количество переменных
+                // по одной переменной мы пробегаемся по всему интервалу
+                // соответственно начиная с axis-элемента i будет отставать на единицу
+                short int shift = 0;
+                for (int i = 0; i < N - 1; ++i) {
+                    if (i == axis) {
+                        shift = 1;
+                    }
+                    arg[i + shift] = x_start[i + shift] + signOf(signs, i) * r;
                 }
-                arg[i + shift] = signOf(signs, i) * r;
-            }
 
-            // на этом шаге у нас уже есть зафиксированная вершина
-            double endValue = x_start[axis] + r;
-            for (double axisValue = x_start[axis] - r; axisValue <= endValue; axisValue += k) {
-                arg[axis] = axisValue;
-                Result r = func.eval(axisValue);
-                if (!r.indeterminate()) {
-                    hasPoint = true; // есть хотя бы одна точка на границе этого куба
-                }
-                if (r.success() && r.value < func_min) {
-                    func_min = r.value;
-                    arg_max = arg;
+                // на этом шаге у нас уже есть зафиксированная вершина
+                double endValue = x_start[axis] + r;
+                for (double axisValue = x_start[axis] - r; axisValue <= endValue; axisValue += k) {
+                    arg[axis] = axisValue;
+                    Result r = func.eval(arg);
+                    if (!r.indeterminate()) {
+                        hasPoint = true; // есть хотя бы одна точка на границе этого куба
+                    }
+                    if (r.success() && r.value < func_min) {
+                        func_min = r.value;
+                        arg_max = arg;
+                    }
                 }
             }
         }
-    }
 
-    /*
-     * Обход всех N-1 мерных граней куба. При этом ребра уже пройдены на прошлом шаге
-     * поэтому обходим только внутренние части, без границ -r и r
-     */
-    for (int axis = 0; axis < N; ++axis) {
-        for (int i = 0; i < N; ++i) {
-            arg[i] = x_start[i] - r + k;
-        }
-        do {
-            for (int minus = 0; minus < 2; ++minus) {
-                arg[axis] = (minus == 0) ? x_start[axis] - r : x_start[axis] + r;
+        /*
+         * Обход всех N-1 мерных граней куба. При этом ребра уже пройдены на прошлом шаге
+         * поэтому обходим только внутренние части, без границ -r и r
+         */
+        for (int axis = 0; axis < N; ++axis) {
+            for (int i = 0; i < N; ++i) {
+                arg[i] = x_start[i] - r + k;
             }
-        } while (next(arg, x_start, axis, -r + k, r - k, k));
-    }
+            do {
+                for (int minus = 0; minus < 2; ++minus) {
+                    arg[axis] = (minus == 0) ? x_start[axis] - r : x_start[axis] + r;
+
+                    Result r = func.eval(arg);
+                    if (!r.indeterminate()) {
+                        hasPoint = true; // есть хотя бы одна точка на границе этого куба
+                    }
+                    if (r.success() && r.value < func_min) {
+                        func_min = r.value;
+                        arg_max = arg;
+                    }
+                }
+            } while (next(arg, x_start, axis, -r + k, r - k, k));
+        }
+
+        r += k;
+    } while (hasPoint);
+
+    return arg_max;
 }
 
 #endif //MATERIALSOLVER_EXHAUSTIVESEARCH_H
